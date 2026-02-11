@@ -6,8 +6,10 @@
 //
 import SwiftUI
 import Supabase
+import AuthenticationServices
 
 struct LoginView: View {
+  @Environment(\.webAuthenticationSession) private var webAuthenticationSession
   @State private var message: String = ""
   @State private var isLoading: Bool = false
 
@@ -52,10 +54,24 @@ struct LoginView: View {
     do {
       try await supabase.auth.signInWithOAuth(
         provider: .google,
-        redirectTo: URL(string: "beerparty://login-callback")!
+        redirectTo: URL(string: "beerparty://login-callback")!,
+        launchFlow: { @MainActor url in
+          try await webAuthenticationSession.authenticate(
+            using: url,
+            callbackURLScheme: "beerparty"
+          )
+        }
       )
     } catch {
-      message = "Google sign-in failed: \(error.localizedDescription)"
+      message = "Google sign-in failed: \(readableAuthError(error))"
     }
+  }
+
+  private func readableAuthError(_ error: Error) -> String {
+    let nsError = error as NSError
+    if nsError.domain == ASWebAuthenticationSessionError.errorDomain && nsError.code == 1 {
+      return "Authentication was canceled. If this happened automatically, check callback URL config in Supabase and Google."
+    }
+    return error.localizedDescription
   }
 }

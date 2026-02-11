@@ -31,6 +31,8 @@
 		9E1559062F3A36CD00E02344 /* BeerParty.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BeerParty.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9E1559152F3A36CE00E02344 /* BeerPartyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BeerPartyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9E15591F2F3A36CE00E02344 /* BeerPartyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BeerPartyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1B2C3D42F3A36CE00E02344 /* BeerParty/Config/Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = BeerParty/Config/Debug.xcconfig; sourceTree = "<group>"; };
+		A1B2C3D52F3A36CE00E02344 /* BeerParty/Config/Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = BeerParty/Config/Release.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -98,6 +100,7 @@
 				9E1559222F3A36CE00E02344 /* BeerPartyUITests */,
 				9E1559392F3A7C9200E02344 /* Frameworks */,
 				9E1559072F3A36CD00E02344 /* Products */,
+				9E1559E52F3CE7CD00E02344 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -116,6 +119,15 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		9E1559E52F3CE7CD00E02344 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D42F3A36CE00E02344 /* BeerParty/Config/Debug.xcconfig */,
+				A1B2C3D52F3A36CE00E02344 /* BeerParty/Config/Release.xcconfig */,
+			);
+			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -420,6 +432,7 @@
 		};
 		9E15592A2F3A36CE00E02344 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A1B2C3D42F3A36CE00E02344 /* BeerParty/Config/Debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -452,6 +465,7 @@
 		};
 		9E15592B2F3A36CE00E02344 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A1B2C3D52F3A36CE00E02344 /* BeerParty/Config/Release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
