@@ -8,7 +8,7 @@ import SwiftUI
 import Supabase
 
 struct MakeLobbyView: View {
-  let onCreated: (_ lobbyName: String) -> Void
+  let onCreated: (_ destination: LobbyDestination) -> Void
 
   @Environment(\.dismiss) private var dismiss
 
@@ -78,12 +78,30 @@ struct MakeLobbyView: View {
         isActive: true
       )
 
-      try await supabase
+      let createdLobby: CreatedLobby = try await supabase
         .from("lobbies")
-        .insert(request)
+        .insert(request, returning: .representation)
+        .single()
+        .execute()
+        .value
+
+      let memberRequest = CreateLobbyMemberRequest(
+        lobbyId: createdLobby.id,
+        userId: session.user.id,
+        role: "admin"
+      )
+
+      try await supabase
+        .from("lobby_members")
+        .insert(memberRequest)
         .execute()
 
-      onCreated(trimmedName)
+      onCreated(
+        LobbyDestination(
+          lobbyID: createdLobby.id,
+          lobbyName: createdLobby.name
+        )
+      )
       dismiss()
     } catch {
       message = "Failed to create lobby: \(error.localizedDescription)"
