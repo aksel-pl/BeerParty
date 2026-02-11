@@ -14,6 +14,7 @@ struct PreLobbyView: View {
   @State private var email: String = "-"
   @State private var isSignedIn: Bool = false
   @State private var isLoading: Bool = false
+  @State private var isShowingCreateLobby: Bool = false
 
   var body: some View {
     NavigationStack {
@@ -33,6 +34,11 @@ struct PreLobbyView: View {
         }
 
         Section("Actions") {
+          Button("Make lobby") {
+            isShowingCreateLobby = true
+          }
+          .disabled(isLoading || !isSignedIn)
+
           Button(isLoading ? "Checking..." : "Check session") {
             Task { await checkSession() }
           }
@@ -47,6 +53,11 @@ struct PreLobbyView: View {
       .navigationTitle("Auth Debug")
       .onAppear {
         Task { await checkSession() }
+      }
+      .sheet(isPresented: $isShowingCreateLobby) {
+        MakeLobbyView { lobbyName in
+          status = "Lobby \(lobbyName) created."
+        }
       }
     }
   }
