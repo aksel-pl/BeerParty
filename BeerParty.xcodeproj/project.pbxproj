@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		9E15593B2F3A7C9200E02344 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 9E15593A2F3A7C9200E02344 /* Supabase */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		9E1559162F3A36CE00E02344 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -29,9 +33,22 @@
 		9E15591F2F3A36CE00E02344 /* BeerPartyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BeerPartyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		9E15594A2F3B6B5900E02344 /* Exceptions for "BeerParty" folder in "BeerParty" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 9E1559052F3A36CD00E02344 /* BeerParty */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		9E1559082F3A36CD00E02344 /* BeerParty */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				9E15594A2F3B6B5900E02344 /* Exceptions for "BeerParty" folder in "BeerParty" target */,
+			);
 			path = BeerParty;
 			sourceTree = "<group>";
 		};
@@ -52,6 +69,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9E15593B2F3A7C9200E02344 /* Supabase in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +96,7 @@
 				9E1559082F3A36CD00E02344 /* BeerParty */,
 				9E1559182F3A36CE00E02344 /* BeerPartyTests */,
 				9E1559222F3A36CE00E02344 /* BeerPartyUITests */,
+				9E1559392F3A7C9200E02344 /* Frameworks */,
 				9E1559072F3A36CD00E02344 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +109,13 @@
 				9E15591F2F3A36CE00E02344 /* BeerPartyUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		9E1559392F3A7C9200E02344 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -112,6 +138,7 @@
 			);
 			name = BeerParty;
 			packageProductDependencies = (
+				9E15593A2F3A7C9200E02344 /* Supabase */,
 			);
 			productName = BeerParty;
 			productReference = 9E1559062F3A36CD00E02344 /* BeerParty.app */;
@@ -195,6 +222,9 @@
 			);
 			mainGroup = 9E1558FD2F3A36CD00E02344;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				9E1559322F3A3BEA00E02344 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9E1559072F3A36CD00E02344 /* Products */;
 			projectDirPath = "";
@@ -397,6 +427,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BeerParty/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -428,6 +459,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BeerParty/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -570,6 +602,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		9E1559322F3A3BEA00E02344 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase-community/supabase-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		9E15593A2F3A7C9200E02344 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9E1559322F3A3BEA00E02344 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 9E1558FE2F3A36CD00E02344 /* Project object */;
 }
