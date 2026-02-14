@@ -16,8 +16,13 @@ struct PreLobbyView: View {
   @State private var isLoading: Bool = false
   @State private var isLoadingLobbies: Bool = false
   @State private var isShowingCreateLobby: Bool = false
+  @State private var isShowingJoinLobby: Bool = false
+  @State private var isShowingProfileEditor: Bool = false
   @State private var selectedLobby: LobbyDestination?
   @State private var memberLobbies: [LobbyDestination] = []
+  @State private var profilePicURL: URL?
+
+  private let imageService = ProfileImageService()
 
   var body: some View {
     NavigationStack {
@@ -37,6 +42,11 @@ struct PreLobbyView: View {
         }
 
         Section("Actions") {
+          Button("Join lobby") {
+            isShowingJoinLobby = true
+          }
+          .disabled(isLoading || !isSignedIn)
+
           Button("Make lobby") {
             isShowingCreateLobby = true
           }
@@ -73,6 +83,18 @@ struct PreLobbyView: View {
         }
       }
       .navigationTitle("Auth Debug")
+      .toolbar {
+        ToolbarItem(placement: .topBarLeading) {
+          if isSignedIn {
+            Button {
+              isShowingProfileEditor = true
+            } label: {
+              profileAvatar
+            }
+            .buttonStyle(.plain)
+          }
+        }
+      }
       .onAppear {
         Task { await checkSession() }
       }
@@ -85,6 +107,22 @@ struct PreLobbyView: View {
           }
         }
       }
+      .sheet(isPresented: $isShowingJoinLobby) {
+        LobbyLoginView { destination in
+          status = "Joined lobby \(destination.lobbyName)."
+          selectedLobby = destination
+          if let currentUserID = UUID(uuidString: userId) {
+            Task { await loadMemberLobbies(for: currentUserID) }
+          }
+        }
+      }
+      .sheet(isPresented: $isShowingProfileEditor) {
+        ProfileSetupView(isEditingExisting: true) {
+          if let currentUserID = UUID(uuidString: userId) {
+            Task { await loadProfileSummary(for: currentUserID) }
+          }
+        }
+      }
       .navigationDestination(item: $selectedLobby) { destination in
         LobbyView(
           lobbyID: destination.lobbyID,
@@ -92,6 +130,30 @@ struct PreLobbyView: View {
         )
       }
     }
+  }
+
+  private var profileAvatar: some View {
+    Group {
+      if let profilePicURL {
+        AsyncImage(url: profilePicURL) { phase in
+          switch phase {
+          case .success(let image):
+            image.resizable()
+          default:
+            Image(systemName: "person.crop.circle.fill")
+              .resizable()
+              .symbolRenderingMode(.hierarchical)
+          }
+        }
+      } else {
+        Image(systemName: "person.crop.circle.fill")
+          .resizable()
+          .symbolRenderingMode(.hierarchical)
+      }
+    }
+    .scaledToFill()
+    .frame(width: 32, height: 32)
+    .clipShape(Circle())
   }
 
   @MainActor
@@ -105,12 +167,14 @@ struct PreLobbyView: View {
       userId = session.user.id.uuidString
       email = session.user.email ?? "-"
       status = "Session loaded successfully."
+      await loadProfileSummary(for: session.user.id)
       await loadMemberLobbies(for: session.user.id)
     } catch {
       isSignedIn = false
       userId = "-"
       email = "-"
       memberLobbies = []
+      profilePicURL = nil
       status = "No session found (or not logged in yet). Error: \(error.localizedDescription)"
     }
   }
@@ -124,6 +188,7 @@ struct PreLobbyView: View {
       try await supabase.auth.signOut()
       status = "Signed out."
       memberLobbies = []
+      profilePicURL = nil
       await checkSession()
     } catch {
       status = "Sign out failed: \(error.localizedDescription)"
@@ -175,6 +240,22 @@ struct PreLobbyView: View {
     } catch {
       memberLobbies = []
       status = "Failed to load lobbies: \(error.localizedDescription)"
+    }
+  }
+
+  @MainActor
+  private func loadProfileSummary(for userID: UUID) async {
+    do {
+      let profile: UserProfile = try await supabase
+        .from("profiles")
+        .select("id,weight,age,gender,profile_pic_path,share_location_foreground,share_location_background")
+        .eq("id", value: userID)
+        .single()
+        .execute()
+        .value
+      profilePicURL = imageService.publicImageURL(for: profile.profilePicPath)
+    } catch {
+      profilePicURL = nil
     }
   }
 }

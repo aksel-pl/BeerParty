@@ -14,14 +14,20 @@ struct MakeLobbyView: View {
 
   @State private var lobbyName: String = ""
   @State private var lobbyPassword: String = ""
+  @State private var nickname: String = ""
   @State private var message: String = ""
   @State private var isLoading: Bool = false
+  private let backendService = LobbyBackendService()
 
   var body: some View {
     NavigationStack {
       Form {
         Section("New Lobby") {
           TextField("Lobby name", text: $lobbyName)
+            .textInputAutocapitalization(.words)
+            .autocorrectionDisabled()
+
+          TextField("Nickname", text: $nickname)
             .textInputAutocapitalization(.words)
             .autocorrectionDisabled()
 
@@ -37,30 +43,41 @@ struct MakeLobbyView: View {
               .foregroundStyle(.secondary)
           }
         }
+
+        Section {
+          HStack(spacing: 10) {
+            LiquidGlassActionButton("Cancel", isDisabled: isLoading, role: .cancel) {
+              dismiss()
+            }
+
+            LiquidGlassActionButton(
+              isLoading ? "Creating..." : "Create",
+              isDisabled: isLoading || !canSubmit
+            ) {
+              Task { await createLobby() }
+            }
+          }
+          .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
+        }
       }
       .navigationTitle("Make Lobby")
-      .toolbar {
-        ToolbarItem(placement: .cancellationAction) {
-          Button("Cancel") { dismiss() }
-            .disabled(isLoading)
-        }
-
-        ToolbarItem(placement: .confirmationAction) {
-          Button(isLoading ? "Creating..." : "Create") {
-            Task { await createLobby() }
-          }
-          .disabled(isLoading || !canSubmit)
-        }
-      }
     }
   }
 
   private var canSubmit: Bool {
-    !trimmedName.isEmpty && lobbyPassword.count >= 4
+    !trimmedName.isEmpty && !trimmedNickname.isEmpty && trimmedInviteCode.count >= 4
   }
 
   private var trimmedName: String {
     lobbyName.trimmingCharacters(in: .whitespacesAndNewlines)
+  }
+
+  private var trimmedNickname: String {
+    nickname.trimmingCharacters(in: .whitespacesAndNewlines)
+  }
+
+  private var trimmedInviteCode: String {
+    lobbyPassword.trimmingCharacters(in: .whitespacesAndNewlines)
   }
 
   @MainActor
@@ -71,10 +88,23 @@ struct MakeLobbyView: View {
 
     do {
       let session = try await supabase.auth.session
+      let existingCodeRows: [InviteCodeOnlyRow] = try await supabase
+        .from("lobbies")
+        .select("invite_code")
+        .eq("invite_code", value: trimmedInviteCode)
+        .limit(1)
+        .execute()
+        .value
+
+      if !existingCodeRows.isEmpty {
+        message = "That invite code is already in use. Pick a different one."
+        return
+      }
+
       let request = CreateLobbyRequest(
         createdBy: session.user.id,
         name: trimmedName,
-        inviteCode: lobbyPassword,
+        inviteCode: trimmedInviteCode,
         isActive: true
       )
 
@@ -88,6 +118,7 @@ struct MakeLobbyView: View {
       let memberRequest = CreateLobbyMemberRequest(
         lobbyId: createdLobby.id,
         userId: session.user.id,
+        nickname: trimmedNickname,
         role: "admin"
       )
 
@@ -95,6 +126,22 @@ struct MakeLobbyView: View {
         .from("lobby_members")
         .insert(memberRequest)
         .execute()
+
+      let memberStateRequest = UpsertMemberStateRequest(
+        lobbyId: createdLobby.id,
+        userId: session.user.id,
+        bacEtimate: nil,
+        lat: nil,
+        lng: nil,
+        updatedAt: Date()
+      )
+
+      try await supabase
+        .from("member_state")
+        .upsert(memberStateRequest, onConflict: "lobby_id,user_id")
+        .execute()
+
+      try await backendService.ensureBACParamsForCurrentUser(lobbyID: createdLobby.id)
 
       onCreated(
         LobbyDestination(
@@ -106,5 +153,13 @@ struct MakeLobbyView: View {
     } catch {
       message = "Failed to create lobby: \(error.localizedDescription)"
     }
+  }
+}
+
+private struct InviteCodeOnlyRow: Decodable {
+  let inviteCode: String
+
+  enum CodingKeys: String, CodingKey {
+    case inviteCode = "invite_code"
   }
 }
